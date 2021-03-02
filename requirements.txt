@@ -1,0 +1,5 @@
+torchvision==0.8.2
+torch==1.7.1
+pytorch-lightning==1.2.1 
+wandb==0.10.20
+notebook==6.2.0
