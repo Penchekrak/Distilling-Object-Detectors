@@ -24,22 +24,22 @@ def bounding_box_iou(
         pass
     else:
         raise ValueError(f"parametrization should be one of ['corners', 'centers'], got {parametrization} instead")
-    prediction_bottom_left_x, prediction_bottom_left_y, prediction_top_right_x, prediction_top_right_y = prediction_boxes.T
-    ground_truth_bottom_left_x, ground_truth_bottom_left_y, ground_truth_top_right_x, ground_truth_top_right_y = ground_truth_boxes.T
-    intersection_bottom_left_x = torch.maximum(prediction_bottom_left_x, ground_truth_bottom_left_x)
-    intersection_bottom_left_y = torch.maximum(prediction_bottom_left_y, ground_truth_bottom_left_x)
-    intersection_top_right_x = torch.minimum(prediction_top_right_x, ground_truth_top_right_x)
-    intersection_top_right_y = torch.minimum(prediction_top_right_y, ground_truth_top_right_y)
+    prediction_top_left_x, prediction_top_left_y, prediction_bottom_right_x, prediction_bottom_right_y = prediction_boxes.T
+    ground_truth_top_left_x, ground_truth_top_left_y, ground_truth_bottom_right_x, ground_truth_bottom_right_y = ground_truth_boxes.T
+    intersection_top_left_x = torch.maximum(prediction_top_left_x, ground_truth_top_left_x)
+    intersection_top_left_y = torch.maximum(prediction_top_left_y, ground_truth_top_left_x)
+    intersection_bottom_right_x = torch.minimum(prediction_bottom_right_x, ground_truth_bottom_right_x)
+    intersection_bottom_right_y = torch.minimum(prediction_bottom_right_y, ground_truth_bottom_right_y)
 
-    intersection_area = torch.maximum(torch.zeros_like(intersection_top_right_x),
-                                      intersection_top_right_x - intersection_bottom_left_x) * \
-                        torch.maximum(torch.zeros_like(intersection_top_right_y),
-                                      intersection_top_right_y - intersection_bottom_left_y)
+    intersection_area = torch.maximum(torch.zeros_like(intersection_bottom_right_x),
+                                      intersection_bottom_right_x - intersection_top_left_x) * \
+                        torch.maximum(torch.zeros_like(intersection_bottom_right_y),
+                                      intersection_bottom_right_y - intersection_top_left_y)
 
-    prediction_boxes_area = (prediction_top_right_x - prediction_bottom_left_x) * (
-            prediction_top_right_y - prediction_bottom_left_y)
-    ground_truth_boxes_area = (ground_truth_top_right_x - ground_truth_bottom_left_x) * (
-                ground_truth_top_right_y - ground_truth_bottom_left_y)
+    prediction_boxes_area = (prediction_bottom_right_x - prediction_top_left_x) * (
+            prediction_bottom_right_y - prediction_top_left_y)
+    ground_truth_boxes_area = (ground_truth_bottom_right_x - ground_truth_top_left_x) * (
+                ground_truth_bottom_right_y - ground_truth_top_left_y)
     union_area = prediction_boxes_area + ground_truth_boxes_area - intersection_area
 
     return intersection_area / union_area
