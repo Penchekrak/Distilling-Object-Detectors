@@ -22,7 +22,18 @@ def test_bounding_box_iou():
     #  [  ┌───┐]  union area = 4
     #  [  └───┘]]
 
-    box1 = torch.tensor([[0, 0, 2, 1]], dtype=torch.float)  # area = 2
-    box2 = torch.tensor([[1, 2, 3, 3]], dtype=torch.float)  # area = 2
+    box3 = torch.tensor([[0, 0, 2, 1]], dtype=torch.float)  # area = 2
+    box4 = torch.tensor([[1, 2, 3, 3]], dtype=torch.float)  # area = 2
 
-    assert torch.allclose(bounding_box_iou(box1, box2), torch.tensor(0.0))
+    assert torch.allclose(bounding_box_iou(box3, box4), torch.tensor(0.0))
+
+    # iou of several predictions with gt
+    # [[┌───┐  ]
+    #  [└───┘  ]
+    #  [┌─╔╤══╗]
+    #  [└─╚╧══╝]]
+
+    pbox = torch.tensor([[0, 0, 2, 1], [0, 2, 2, 3]], dtype=torch.float)
+    gtbox = torch.tensor([[1, 2, 4, 3]], dtype=torch.float)
+
+    assert torch.allclose(bounding_box_iou(pbox, gtbox), torch.tensor([[0.0], [1 / 4]]))

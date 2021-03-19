@@ -13,9 +13,9 @@ def bounding_box_iou(
     """
     Calculates IoU for a batch of bounding boxes
     :param prediction_boxes: tensor [N, 4] of predicted bounding boxes
-    :param ground_truth_boxes: tensor [N, 4] of ground truth bounding boxes
+    :param ground_truth_boxes: tensor [M, 4] of ground truth bounding boxes
     :param parametrization: string, indicating bbox parametrization, should be one of ['corners', 'centers']
-    :return: tensor [N] of IoU scores
+    :return: tensor [N, M] of IoU scores
     """
     if parametrization == 'centers':
         prediction_boxes = to_corner_parametrization(prediction_boxes)
@@ -24,6 +24,10 @@ def bounding_box_iou(
         pass
     else:
         raise ValueError(f"parametrization should be one of ['corners', 'centers'], got {parametrization} instead")
+    prediction_batch_size, _ = prediction_boxes.shape
+    ground_truth_batch_size, _ = ground_truth_boxes.shape
+    prediction_boxes = prediction_boxes.unsqueeze(0).expand(ground_truth_batch_size, -1, -1)
+    ground_truth_boxes = ground_truth_boxes.unsqueeze(1).expand(-1, prediction_batch_size, -1)
     prediction_top_left_x, prediction_top_left_y, prediction_bottom_right_x, prediction_bottom_right_y = prediction_boxes.T
     ground_truth_top_left_x, ground_truth_top_left_y, ground_truth_bottom_right_x, ground_truth_bottom_right_y = ground_truth_boxes.T
     intersection_top_left_x = torch.maximum(prediction_top_left_x, ground_truth_top_left_x)
@@ -39,26 +43,10 @@ def bounding_box_iou(
     prediction_boxes_area = (prediction_bottom_right_x - prediction_top_left_x) * (
             prediction_bottom_right_y - prediction_top_left_y)
     ground_truth_boxes_area = (ground_truth_bottom_right_x - ground_truth_top_left_x) * (
-                ground_truth_bottom_right_y - ground_truth_top_left_y)
+            ground_truth_bottom_right_y - ground_truth_top_left_y)
     union_area = prediction_boxes_area + ground_truth_boxes_area - intersection_area
 
     return intersection_area / union_area
-
-
-class MeanBoxIoU(Metric):
-
-    def __init__(
-            self,
-            parametrization: str = 'corners',
-            *args, **kwargs
-    ):
-        super(MeanBoxIoU, self).__init__(*args, **kwargs)
-        self.parametrization = parametrization
-
-    def update(
-            self,
-    ):
-        pass
 
 
 class MeanAveragePrecision(Metric):
