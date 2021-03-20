@@ -55,7 +55,7 @@ class MeanAveragePrecision(Metric):
     def __init__(
             self,
             iou_threshold: float = 0.5,
-            non_maximum_suppression: bool = True,
+            non_maximum_suppression: str = 'softnms',
             *args, **kwargs
     ):
         super(MeanAveragePrecision, self).__init__(*args, **kwargs)
@@ -68,12 +68,14 @@ class MeanAveragePrecision(Metric):
             targets: List[Dict[str, Tensor]]
     ) -> None:
         for prediction, ground_truth in zip(predictions, targets):
-            if self.nms:
+            if self.nms == 'softnms':
                 prediction = prediction
             boxes, labels, scores = prediction['boxes'], prediction['labels'], prediction['scores']
             true_boxes, true_labels = ground_truth['boxes'], ground_truth['labels']
             iou_scores = bounding_box_iou(boxes, true_boxes)
         pass
 
+    def compute(self):
+        pass
 
-
+    # TODO complete metric definition
