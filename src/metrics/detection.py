@@ -4,7 +4,7 @@ import torch
 from torchmetrics import Metric, AveragePrecision
 from torch import Tensor
 
-from utils.boxes import to_corner_parametrization
+from src.utils.boxes import to_corner_parametrization
 
 
 def bounding_box_iou(

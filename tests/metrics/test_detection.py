@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from metrics.detection import bounding_box_iou, MeanBBoxIoUCorrect, ExactMAPAtThreshold
+from src.metrics import bounding_box_iou, MeanBBoxIoUCorrect, ExactMAPAtThreshold
 
 SAMPLE_BOXES = [
     # iou of overlapping boxes

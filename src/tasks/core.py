@@ -1,10 +1,9 @@
 from abc import abstractmethod
 from typing import Tuple, Mapping, List, Any, Optional, Union
 from torch import Tensor
-from torch.nn import Module
 from pytorch_lightning import LightningModule
 from torchmetrics import MetricCollection, Metric
-from utils.drawing import WandbImageLogger
+from src.utils import WandbImageLogger
 
 
 class BaseObjectDetectionTask(LightningModule):

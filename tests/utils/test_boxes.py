@@ -1,4 +1,4 @@
-from utils.boxes import to_corner_parametrization, is_valid_box
+from src.utils.boxes import to_corner_parametrization, is_valid_box
 import torch
 import pytest
 
