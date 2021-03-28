@@ -5,3 +5,6 @@ pytorch-lightning==1.2.3
 wandb==0.10.20
 notebook==6.2.0
 pytest==6.2.2
+hydra-core==1.0.6
+omegaconf==2.0.6
+albumentations==0.5.2
