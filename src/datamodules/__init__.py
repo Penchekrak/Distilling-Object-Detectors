@@ -1,1 +1,1 @@
-from COCO import *
+from VOC import VOC

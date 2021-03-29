@@ -1,0 +1,7 @@
+data:
+  _target_: src.datamodules.VOC.VOC
+  train_transforms:
+    _target_: src.utils.make_transforms
+    Resize:
+      height: 64
+      width: 64
