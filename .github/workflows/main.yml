@@ -3,8 +3,9 @@ name: Python package
 on:
   push:
     paths:
-    - 'lib/**'
+    - 'src/**'
     - 'tests/**'
+    - 'train.py'
 
 jobs:
   build:
