@@ -1,9 +1,10 @@
 from albumentations.core.serialization import SERIALIZABLE_REGISTRY
-from omegaconf import OmegaConf
-from albumentations.core.composition import Compose
+from albumentations.pytorch import ToTensorV2
+from albumentations import Compose, BboxParams
 
 REGISTRY = {}
-REGISTRY.update(SERIALIZABLE_REGISTRY)
+REGISTRY.update({key.split('.')[-1]: value for key, value in SERIALIZABLE_REGISTRY.items()})
+
 
 def instantiate(name, kwargs):
     cls = REGISTRY[name]
@@ -13,9 +14,20 @@ def instantiate(name, kwargs):
         ]
     return cls(**kwargs)
 
-def make_transforms(config):
-    conf_dict = OmegaConf.to_container(config, resolve=True)
+
+def make_transforms(dict):
+    if dict is None:
+        return None
     transforms = []
-    for name, kwargs in conf_dict:
+    if 'ToTensor' in dict:
+        args = dict['ToTensor']
+        del dict['ToTensor']
+        dict['ToTensorV2'] = args
+    if 'BboxParams' in dict:
+        bbox_args = dict['BboxParams']
+        del dict['BboxParams']
+    else:
+        bbox_args = {'format': 'albumentations', 'label_fields': ['labels']}
+    for name, kwargs in dict.items():
         transforms.append(instantiate(name, kwargs))
-    return Compose(transforms=transforms)
+    return Compose(transforms=transforms, bbox_params=BboxParams(**bbox_args))

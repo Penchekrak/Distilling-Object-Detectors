@@ -1,1 +1,1 @@
-from VOC import VOC
+from .VOC import VOC

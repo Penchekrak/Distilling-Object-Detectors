@@ -1,2 +1,2 @@
-from boxes import *
-from drawing import *
+from .boxes import *
+from .drawing import *

@@ -45,7 +45,7 @@ class BaseObjectDetectionTask(LightningModule):
         images, targets = batch
         outputs = self.forward(images)
         self.metric(outputs, targets)
-        self.image_helper(images, targets, outputs)
+        self.image_helper(images, {'ground truth': targets, 'prediction': outputs})
 
     def validation_epoch_end(self, outputs: List[Any]) -> None:
         metric_value = self.metric
@@ -63,7 +63,7 @@ class BaseObjectDetectionTask(LightningModule):
         images, targets = batch
         outputs = self.forward(images)
         self.metric(outputs, targets)
-        self.image_helper(images, targets, outputs)
+        self.image_helper(images, {'ground truth': targets, 'prediction': outputs})
 
     def test_epoch_end(self, outputs: List[Any]) -> None:
         metric_value = self.metric

@@ -17,11 +17,10 @@ class WandbImageLogger(object):
         self.class_id_to_label = class_id_to_labels
         self.name = name
 
-    def __call__(self, images, targets, predictions):
+    def __call__(self, images, descriptors):
         if self.max_capacity > len(self.storage):
-            for _, image, target, prediction in zip(range(self.max_capacity - len(self.storage)), images, targets,
-                                                    predictions):
-                self.storage.append((image, target, prediction))
+            for _, image, descriptor in zip(range(self.max_capacity - len(self.storage)), images, descriptors):
+                self.storage.append((image, descriptor))
 
     def prepare_box_data(
             self,
@@ -51,20 +50,16 @@ class WandbImageLogger(object):
     def to_image(
             self,
             image: Tensor,
-            ground_truth: Dict[str, Tensor],
-            prediction: Dict[str, Tensor],
+            descriptors: Dict[str, Dict[str, Tensor]],
     ):
         return Image(
             data_or_path=image.detach().cpu().numpy(),
             boxes={
-                'predictions': {
-                    'box_data': self.prepare_box_data(prediction),
-                    'class_labels': self.class_id_to_label,
-                },
-                'ground truth': {
-                    'box_data': self.prepare_box_data(ground_truth),
+                key: {
+                    'box_data': self.prepare_box_data(value),
                     'class_labels': self.class_id_to_label,
                 }
+                for key, value in descriptors
             }
         )
 
@@ -72,4 +67,4 @@ class WandbImageLogger(object):
             self,
             logger: Run
     ):
-        logger.log({self.name: [self.to_image(image, gt, pred) for image, gt, pred in self.storage]})
+        logger.log({self.name: [self.to_image(image, descriptors) for image, descriptors in self.storage]})
