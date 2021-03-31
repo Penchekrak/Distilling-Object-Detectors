@@ -1,9 +1,12 @@
 from typing import Any, Union, List, Optional, Tuple
+
+import torch
 from cv2 import imread, cvtColor, COLOR_BGR2RGB
 from pytorch_lightning import LightningDataModule
 import xml.etree.ElementTree as ET
 from torch.utils.data import DataLoader
 from src.utils.transforms import make_transforms
+from .common import collate_boxes
 from torchvision.datasets import VOCDetection
 from albumentations import convert_bbox_to_albumentations
 
@@ -41,18 +44,32 @@ class VOCDataset(VOCDetection):
             ]
         self.classes_of_interest = {e: i for i, e in enumerate(classes_of_interest)}
 
+    def __getitem__(self, index: int) -> Tuple[Any, Any]:
+        image = imread(self.images[index])
+        image = cvtColor(image, COLOR_BGR2RGB)
 
-def __getitem__(self, index: int) -> Tuple[Any, Any]:
-    image = imread(self.images[index])
-    target = self.parse_voc_xml(ET.parse(self.annotations[index]).getroot())
+        target = self.parse_voc_xml(ET.parse(self.annotations[index]).getroot())
 
-    bboxes = ...
-    labels = ...
+        bboxes = []
+        labels = []
 
-    if self.transforms is not None:
-        image, target = self.transforms(image=image, bboxes=bboxes, labels=labels)
+        width, height = (int(target['annotation']['size'][dim]) for dim in ['width', 'height'])
 
-    return image, target
+        for object in target['annotation']['object']:
+            bbox = tuple(int(object['bndbox'][coord]) for coord in ['xmin', 'ymin', 'xmax', 'ymax'])
+            bbox = convert_bbox_to_albumentations(bbox, source_format='pascal_voc', rows=height, cols=width)
+            bboxes.append(bbox)
+            label = object['name']
+            idx = self.classes_of_interest[label]
+            labels.append(idx)
+
+        if self.transforms is not None:
+            transformed = self.transforms(image=image, bboxes=bboxes, labels=labels)
+            image = transformed['image']
+            bboxes = transformed['bboxes']
+            labels = transformed['labels']
+
+        return image, {'boxes': torch.tensor(bboxes), 'labels': torch.tensor(labels)}
 
 
 class VOC(LightningDataModule):
@@ -94,10 +111,12 @@ class VOC(LightningDataModule):
         )
 
     def train_dataloader(self) -> Any:
-        return DataLoader(self.train_dataset, batch_size=self.batch_size, num_workers=self.num_workers)
+        return DataLoader(self.train_dataset, batch_size=self.batch_size, num_workers=self.num_workers,
+                          collate_fn=collate_boxes)
 
     def val_dataloader(self) -> Union[DataLoader, List[DataLoader]]:
-        return DataLoader(self.val_dataset, batch_size=self.batch_size, num_workers=self.num_workers)
+        return DataLoader(self.val_dataset, batch_size=self.batch_size, num_workers=self.num_workers,
+                          collate_fn=collate_boxes)
 
     def test_dataloader(self) -> Union[DataLoader, List[DataLoader]]:
         raise AttributeError("No test set for VOC dataset")

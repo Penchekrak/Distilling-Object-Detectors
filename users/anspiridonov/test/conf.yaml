@@ -1,11 +1,13 @@
-hydra:
-  output_subdir: null
-  run:
-    dir: .
 data:
   _target_: src.datamodules.VOC
-  data_dir: data
+  data_dir: /home/anspiridonov/SHAD/RESEARCH/data
+  batch_size: 2
   train_transforms:
+    Resize:
+      height: 64
+      width: 64
+    ToTensor: {}
+  val_transforms:
     Resize:
       height: 64
       width: 64

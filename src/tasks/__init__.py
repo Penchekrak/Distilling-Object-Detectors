@@ -1,1 +1,1 @@
-from .core import *
+from .single_model_tasks import *

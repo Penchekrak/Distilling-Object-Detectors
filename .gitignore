@@ -130,3 +130,6 @@ dmypy.json
 
 # Dataset directory
 data/
+
+# Hydra runs outputs
+outputs/

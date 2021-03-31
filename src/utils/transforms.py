@@ -19,10 +19,6 @@ def make_transforms(dict):
     if dict is None:
         return None
     transforms = []
-    if 'ToTensor' in dict:
-        args = dict['ToTensor']
-        del dict['ToTensor']
-        dict['ToTensorV2'] = args
     if 'BboxParams' in dict:
         bbox_args = dict['BboxParams']
         del dict['BboxParams']
