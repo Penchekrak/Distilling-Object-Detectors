@@ -10,7 +10,7 @@ from pytorch_lightning.loggers import WandbLogger
 
 @hydra.main()
 def main(cfg: DictConfig):
-    seed_everything(cfg.seed)
+    seed_everything(42)
     logger = WandbLogger(**cfg.logger)
     logger.log_hyperparams(OmegaConf.to_container(cfg, resolve=True))
     checkpoint = ModelCheckpoint(**cfg.checkpoint, dirpath=logger.save_dir)

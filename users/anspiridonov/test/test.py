@@ -1,16 +1,19 @@
 import hydra
 from hydra.utils import instantiate
 from omegaconf import DictConfig
-from albumentations.pytorch import ToTensorV2
-from torchvision.models.detection import FasterRCNN
+from pytorch_lightning.loggers import WandbLogger
+from pytorch_lightning import Trainer
 
 
 @hydra.main(config_path='.', config_name='conf.yaml')
 def main(cfg: DictConfig):
-    dm = instantiate(cfg.data)
-    dm.setup()
-    print(next(iter(dm.train_dataloader())))
+    datamodule = instantiate(cfg.data)
+    task = instantiate(cfg.task)
+    logger = WandbLogger(**cfg.logger)
+    trainer = Trainer(**cfg.trainer, logger=logger)
+    trainer.fit(model=task, datamodule=datamodule)
+
 
 if __name__ == '__main__':
     main()
-    nn = FasterRCNN()
+

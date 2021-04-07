@@ -1,0 +1,6 @@
+from torchvision.models.detection import fasterrcnn_resnet50_fpn, fasterrcnn_mobilenet_v3_large_fpn, \
+    fasterrcnn_mobilenet_v3_large_320_fpn
+
+FasterRCNN_Resnet50_FPN = fasterrcnn_resnet50_fpn
+FasterRCNN_MobileNet_FPN = fasterrcnn_mobilenet_v3_large_fpn
+FasterRCNN_MobileNet320_FPN = fasterrcnn_mobilenet_v3_large_320_fpn

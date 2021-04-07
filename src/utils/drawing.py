@@ -1,5 +1,5 @@
 from wandb import Image
-from typing import Dict
+from typing import Dict, List
 from torch import Tensor
 from itertools import zip_longest
 from wandb.wandb_run import Run
@@ -17,10 +17,16 @@ class WandbImageLogger(object):
         self.class_id_to_label = class_id_to_labels
         self.name = name
 
-    def __call__(self, images, descriptors):
+    def __call__(
+            self,
+            images: Tensor,
+            descriptors: Dict[str, List[Dict[str, Tensor]]]
+    ):
         if self.max_capacity > len(self.storage):
-            for _, image, descriptor in zip(range(self.max_capacity - len(self.storage)), images, descriptors):
-                self.storage.append((image, descriptor))
+            take = min(self.max_capacity - len(self.storage), len(images))
+            keys, values = descriptors.keys(), descriptors.values()
+            for i in range(take):
+                self.storage.append((images[i], {k: v[i] for k, v in zip(keys, values)}))
 
     def prepare_box_data(
             self,
@@ -33,15 +39,15 @@ class WandbImageLogger(object):
                     "minX": box[0].item(),
                     "maxX": box[2].item(),
                     "minY": box[1].item(),
-                    "maxY": box[4].item(),
+                    "maxY": box[3].item(),
                 },
                 "class_id": class_id.item(),
-                "box_caption": f"{self.class_id_to_label[class_id]}",
+                "box_caption": f"{self.class_id_to_label[class_id.item()]}",
                 "domain": "pixel"
             }
             if score:
                 dct["scores"] = {"score": score.item()}
-                dct["box_caption"] += f" ({score:.3f})"
+                dct["box_caption"] += f" ({score.item():.3f})"
             box_data.append(
                 dct
             )
@@ -53,13 +59,13 @@ class WandbImageLogger(object):
             descriptors: Dict[str, Dict[str, Tensor]],
     ):
         return Image(
-            data_or_path=image.detach().cpu().numpy(),
+            data_or_path=image,
             boxes={
                 key: {
                     'box_data': self.prepare_box_data(value),
                     'class_labels': self.class_id_to_label,
                 }
-                for key, value in descriptors
+                for key, value in descriptors.items()
             }
         )
 

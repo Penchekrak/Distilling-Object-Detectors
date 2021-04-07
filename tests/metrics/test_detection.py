@@ -109,8 +109,8 @@ COMPLEX_CASES = [
                     [0, 0, 3.5, 1],
                     [0, 2, 2, 3]
                 ], dtype=torch.float),
-                'labels': torch.tensor([1, 1], dtype=torch.long),
-                'scores': torch.tensor([0.1, 0.1], dtype=torch.float),
+                'labels': torch.tensor([1, 2], dtype=torch.long),
+                'scores': torch.tensor([0.5, 0.5], dtype=torch.float),
             }
         ],
         [
@@ -119,7 +119,7 @@ COMPLEX_CASES = [
                     [3, 0, 4, 1],
                     [1, 2, 4, 3]
                 ], dtype=torch.float),
-                'labels': torch.tensor([1, 1], dtype=torch.long),
+                'labels': torch.tensor([1, 2], dtype=torch.long),
             }
         ],
         torch.tensor([
@@ -136,14 +136,14 @@ COMPLEX_CASES = [
                     [0, 0, 3.5, 1],
                 ], dtype=torch.float),
                 'labels': torch.tensor([1], dtype=torch.long),
-                'scores': torch.tensor([0], dtype=torch.float),
+                'scores': torch.tensor([0.25], dtype=torch.float),
             },
             {
                 'boxes': torch.tensor([
                     [0, 2, 2, 3]
                 ], dtype=torch.float),
-                'labels': torch.tensor([1], dtype=torch.long),
-                'scores': torch.tensor([0], dtype=torch.float),
+                'labels': torch.tensor([2], dtype=torch.long),
+                'scores': torch.tensor([0.75], dtype=torch.float),
             }
         ],
         [
@@ -198,7 +198,7 @@ def test_mean_correct_bbox_iou_multiple_updates(case):
     assert metric == 0
 
 def test_m():
-    m = ExactMAPAtThreshold(num_classes=2, iou_threshold=-0.1, compute_on_step=False)
+    m = ExactMAPAtThreshold(num_classes=3, iou_threshold=-0.1, compute_on_step=False)
     for prediction, ground_truth, score in COMPLEX_CASES:
         m(prediction, ground_truth)
     s = m.compute()

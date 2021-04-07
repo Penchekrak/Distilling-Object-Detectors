@@ -23,7 +23,7 @@ def make_transforms(dict):
         bbox_args = dict['BboxParams']
         del dict['BboxParams']
     else:
-        bbox_args = {'format': 'albumentations', 'label_fields': ['labels']}
+        bbox_args = {'format': 'pascal_voc', 'label_fields': ['labels']}
     for name, kwargs in dict.items():
         transforms.append(instantiate(name, kwargs))
     return Compose(transforms=transforms, bbox_params=BboxParams(**bbox_args))

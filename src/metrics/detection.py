@@ -125,7 +125,9 @@ class ExactMAPAtThreshold(AveragePrecision):
 
     def compute(self) -> Union[torch.Tensor, List[torch.Tensor]]:
         average_precision_per_class = super().compute()
-        return sum(ap for ap in average_precision_per_class if not ap.isnan()) / self.num_classes
+
+        return sum(ap for ap in average_precision_per_class if not ap.isnan()) / \
+               sum(1 for ap in average_precision_per_class if not ap.isnan())
 
 
 class FastMAPAtThreshold(Metric):

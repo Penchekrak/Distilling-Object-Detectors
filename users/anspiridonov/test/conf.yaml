@@ -1,14 +1,38 @@
 data:
   _target_: src.datamodules.VOC
   data_dir: /home/anspiridonov/SHAD/RESEARCH/data
-  batch_size: 2
+  batch_size: 5
+  classes:
+    - car
+    - person
   train_transforms:
     Resize:
-      height: 64
-      width: 64
-    ToTensor: {}
+      height: 512
+      width: 512
+    ToTensor: { }
+
   val_transforms:
     Resize:
-      height: 64
-      width: 64
-    ToTensor: {}
+      height: 512
+      width: 512
+    ToTensor: { }
+
+task:
+  _target_: src.tasks.TorchvisionRCNNTask
+
+  model:
+    _target_: torchvision.models.detection.fasterrcnn_resnet50_fpn
+    num_classes: 3
+    progress: False
+
+  optimizer:
+    _target_: torch.optim.Adam
+
+trainer:
+  limit_train_batches: 3
+  limit_val_batches: 3
+  log_every_n_steps: 1
+
+logger:
+  project: test
+  entity: distilling-object-detectors

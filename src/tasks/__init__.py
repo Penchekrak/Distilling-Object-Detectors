@@ -1,1 +1,1 @@
-from .single_model_tasks import *
+from .single_model_tasks import TorchvisionRCNNTask
