@@ -1,7 +1,7 @@
 data:
   _target_: src.datamodules.VOC
   data_dir: /home/anspiridonov/SHAD/RESEARCH/data
-  batch_size: 5
+  batch_size: 16
   train_transforms:
     Resize:
       height: 512
@@ -19,7 +19,7 @@ task:
 
   model:
     _target_: torchvision.models.detection.fasterrcnn_resnet50_fpn
-    num_classes: 21
+    num_classes: 21  # 20 from pascal + 0th class for background
     progress: False
     pretrained_backbone: True
 
@@ -27,8 +27,7 @@ task:
     _target_: torch.optim.Adam
 
 trainer:
-  limit_train_batches: 3
-  limit_val_batches: 3
+  limit_val_batches: 10
   log_every_n_steps: 1
 
 logger:

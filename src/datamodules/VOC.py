@@ -20,7 +20,7 @@ class VOCDataset(VOCDetection):
         super(VOCDataset, self).__init__(*args, **kwargs)
         if consider_classes is None:
             consider_classes = [
-                'background'
+                'background',
                 'aeroplane',
                 'bicycle',
                 'bird',
