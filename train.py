@@ -13,11 +13,11 @@ def main(cfg: DictConfig):
     seed_everything(42)
     logger = WandbLogger(**cfg.logger)
     logger.log_hyperparams(OmegaConf.to_container(cfg, resolve=True))
-    # checkpoint = ModelCheckpoint(**cfg.checkpoint, dirpath=logger.save_dir)
+    checkpoint = ModelCheckpoint(**cfg.checkpoint, dirpath=logger.save_dir)
     trainer = Trainer(
         **cfg.trainer,
         logger=logger,
-        # callbacks=checkpoint,
+        callbacks=checkpoint,
         plugins=DDPPlugin(find_unused_parameters=True)
     )
     task = instantiate(cfg.task)

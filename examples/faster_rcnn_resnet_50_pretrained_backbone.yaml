@@ -26,6 +26,10 @@ task:
   optimizer:
     _target_: torch.optim.Adam
 
+  metric:
+    _target_: src.metrics.ExactMAPAtThreshold
+    num_classes: 21
+
 trainer:
   limit_val_batches: 10
   log_every_n_steps: 1
@@ -33,3 +37,4 @@ trainer:
 logger:
   project: test
   entity: distilling-object-detectors
+checkpoint: {}
