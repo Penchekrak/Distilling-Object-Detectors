@@ -115,7 +115,7 @@ class ExactMAPAtThreshold(AveragePrecision):
             mask = best_iou_scores > self.iou_threshold
             indices = indices[mask]
             n, = true_labels.shape
-            filter_prediction = torch.zeros((n, self.num_classes), dtype=torch.float)
+            filter_prediction = torch.zeros((n, self.num_classes), dtype=torch.float).type_as(scores)
             filter_prediction[indices, labels[mask]] = scores[mask]
             predictions_.append(filter_prediction)
             targets_.append(true_labels)

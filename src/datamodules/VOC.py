@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader
 from src.utils.transforms import make_transforms
 from .common import collate_boxes
 from torchvision.datasets import VOCDetection
+from hydra.utils import to_absolute_path
 
 
 class VOCDataset(VOCDetection):
@@ -91,7 +92,7 @@ class VOC(LightningDataModule):
             download=False,
             *args, **kwargs
     ):
-        self.data_dir = data_dir
+        self.data_dir = to_absolute_path(data_dir)
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.args = args
