@@ -33,6 +33,7 @@ class TorchvisionRCNNTask(LightningModule):
         class_to_label = self.trainer.datamodule.train_dataset.class_to_label
         label_to_class = {v: k for k, v in class_to_label.items()}
         self.image_helper = WandbImageLogger(label_to_class)
+        self.trainer.logger.watch((self.model.rpn, self.model.roi_heads), log='gradients', log_freq=1)
 
     def configure_optimizers(self):
         return instantiate(self.optimizer_cfg, params=self.model.parameters())

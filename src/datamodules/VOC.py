@@ -88,6 +88,7 @@ class VOC(LightningDataModule):
             val_transforms=None,
             test_transforms=None,
             classes=None,
+            download=False,
             *args, **kwargs
     ):
         self.data_dir = data_dir
@@ -96,13 +97,14 @@ class VOC(LightningDataModule):
         self.args = args
         self.kwargs = kwargs
         self.classes = classes
+        self.download = download
         train_transforms = make_transforms(train_transforms)
         val_transforms = make_transforms(val_transforms)
         test_transforms = make_transforms(test_transforms)
         super(VOC, self).__init__(train_transforms, val_transforms, test_transforms, *args, **kwargs)
 
     def prepare_data(self, *args, **kwargs):
-        VOCDetection(root=self.data_dir, download=True, image_set='trainval')
+        VOCDetection(root=self.data_dir, download=self.download, image_set='trainval')
 
     def setup(self, stage: Optional[str] = None):
         self.train_dataset = VOCDataset(
@@ -122,11 +124,11 @@ class VOC(LightningDataModule):
 
     def train_dataloader(self) -> Any:
         return DataLoader(self.train_dataset, batch_size=self.batch_size, num_workers=self.num_workers,
-                          collate_fn=collate_boxes)
+                          collate_fn=collate_boxes, shuffle=True)
 
     def val_dataloader(self) -> Union[DataLoader, List[DataLoader]]:
         return DataLoader(self.val_dataset, batch_size=self.batch_size, num_workers=self.num_workers,
-                          collate_fn=collate_boxes)
+                          collate_fn=collate_boxes, shuffle=False)
 
     def test_dataloader(self) -> Union[DataLoader, List[DataLoader]]:
         raise AttributeError("No test set for VOC dataset")

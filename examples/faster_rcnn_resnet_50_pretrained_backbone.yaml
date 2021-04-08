@@ -2,6 +2,7 @@ data:
   _target_: src.datamodules.VOC
   data_dir: /home/anspiridonov/SHAD/RESEARCH/data
   batch_size: 16
+  num_workers: 16
   train_transforms:
     Resize:
       height: 512
@@ -33,6 +34,7 @@ task:
 trainer:
   limit_val_batches: 10
   log_every_n_steps: 1
+#  gpus: 1
 
 logger:
   project: test

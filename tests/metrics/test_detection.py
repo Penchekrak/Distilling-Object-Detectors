@@ -161,7 +161,7 @@ COMPLEX_CASES = [
             }
         ],
         torch.tensor([
-            [0.5 * (0.5 / 4 + 1 / 4)],  # score
+            [(0.5 / 4)],  # score
         ], dtype=torch.float)
     ),
 ]

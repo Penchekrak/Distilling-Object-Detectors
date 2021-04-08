@@ -27,8 +27,8 @@ task:
     _target_: torch.optim.Adam
 
 trainer:
-  limit_train_batches: 3
-  limit_val_batches: 3
+  limit_train_batches: 2
+  limit_val_batches: 2
   log_every_n_steps: 1
 
 logger:

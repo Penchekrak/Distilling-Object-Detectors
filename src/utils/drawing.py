@@ -43,7 +43,8 @@ class WandbImageLogger(object):
                 },
                 "class_id": class_id.item(),
                 "box_caption": f"{self.class_id_to_label[class_id.item()]}",
-                "domain": "pixel"
+                "domain": "pixel",
+                "scores": {"score": 1.0}
             }
             if score:
                 dct["scores"] = {"score": score.item()}
@@ -74,3 +75,5 @@ class WandbImageLogger(object):
             logger: Run
     ):
         logger.log({self.name: [self.to_image(image, descriptors) for image, descriptors in self.storage]})
+        del self.storage
+        self.storage = []
