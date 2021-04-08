@@ -26,6 +26,11 @@ task:
   optimizer:
     _target_: torch.optim.Adam
 
+  metric:
+    _target_: src.metrics.ExactMAPAtThreshold
+    compute_on_step: False
+    num_classes: 21
+
 trainer:
   limit_train_batches: 2
   limit_val_batches: 2

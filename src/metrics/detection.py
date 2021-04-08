@@ -1,7 +1,7 @@
 from typing import List, Dict, Optional, Union
 
 import torch
-from torchmetrics import Metric, AveragePrecision
+from pytorch_lightning.metrics import Metric, AveragePrecision
 from torch import Tensor
 
 from src.utils.boxes import to_corner_parametrization
@@ -95,7 +95,7 @@ class ExactMAPAtThreshold(AveragePrecision):
             *args, **kwargs
     ):
         super().__init__(num_classes=num_classes, *args, **kwargs)
-        self.iou_threshold = iou_threshold
+        self.iou_threshold = torch.tensor(iou_threshold)
         self.nms = non_maximum_suppression
 
     def update(
@@ -110,13 +110,14 @@ class ExactMAPAtThreshold(AveragePrecision):
             # TODO nms
             boxes, labels, scores = prediction['boxes'], prediction['labels'], prediction['scores']
             true_boxes, true_labels = ground_truth['boxes'], ground_truth['labels']
-            iou_scores = bounding_box_iou(boxes, true_boxes)
-            best_iou_scores, indices = torch.max(iou_scores, dim=1)
-            mask = best_iou_scores > self.iou_threshold
-            indices = indices[mask]
             n, = true_labels.shape
             filter_prediction = torch.zeros((n, self.num_classes), dtype=torch.float).type_as(scores)
-            filter_prediction[indices, labels[mask]] = scores[mask]
+            if len(boxes) > 0:
+                iou_scores = bounding_box_iou(boxes, true_boxes)
+                best_iou_scores, indices = torch.max(iou_scores, dim=1)
+                mask = best_iou_scores > self.iou_threshold
+                indices = indices[mask]
+                filter_prediction[indices, labels[mask]] = scores[mask]
             predictions_.append(filter_prediction)
             targets_.append(true_labels)
         predictions_ = torch.cat(predictions_)

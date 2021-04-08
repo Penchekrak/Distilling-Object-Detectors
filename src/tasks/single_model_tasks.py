@@ -3,10 +3,10 @@ from typing import Tuple, Mapping, List, Any, Optional, Union
 from hydra.utils import instantiate
 from torch import Tensor
 from pytorch_lightning import LightningModule
-from torchmetrics import MetricCollection, Metric
+from pytorch_lightning.metrics import Metric, MetricCollection
 from torchvision.models.detection.generalized_rcnn import GeneralizedRCNN
 
-from src.utils import WandbImageLogger
+from src.utils import WandbImageLogger, make_metric
 from omegaconf import DictConfig
 
 
@@ -22,18 +22,13 @@ class TorchvisionRCNNTask(LightningModule):
         super(TorchvisionRCNNTask, self).__init__(*args, **kwargs)
         self.model: GeneralizedRCNN = instantiate(model)
         self.optimizer_cfg = optimizer
-        if isinstance(metric, list):
-            self.metric = MetricCollection(metrics=list(map(instantiate, metric)))
-        elif metric is not None:
-            self.metric = instantiate(metric)
-        else:
-            self.metric = None
+        self.metric = make_metric(metric)
 
     def setup(self, stage) -> None:
         class_to_label = self.trainer.datamodule.train_dataset.class_to_label
         label_to_class = {v: k for k, v in class_to_label.items()}
         self.image_helper = WandbImageLogger(label_to_class)
-        self.trainer.logger.watch((self.model.rpn, self.model.roi_heads), log='gradients', log_freq=1)
+        # self.trainer.logger.watch((self.model.rpn, self.model.roi_heads), log='gradients', log_freq=1)
 
     def configure_optimizers(self):
         return instantiate(self.optimizer_cfg, params=self.model.parameters())
@@ -68,11 +63,8 @@ class TorchvisionRCNNTask(LightningModule):
         self.image_helper(images, {'ground truth': targets, 'prediction': outputs})
 
     def validation_epoch_end(self, outputs: List[Any]) -> None:
-        metric_value = self.metric
-        if isinstance(metric_value, dict):
-            self.log_dict(metric_value)
-        else:
-            self.log(self.metric.__class__.__name__, metric_value)
+        if self.metric is not None:
+            self.log_dict(self.metric)
         self.image_helper.log_to(self.logger.experiment)
 
     def test_step(
@@ -87,9 +79,6 @@ class TorchvisionRCNNTask(LightningModule):
         self.image_helper(images, {'ground truth': targets, 'prediction': outputs})
 
     def test_epoch_end(self, outputs: List[Any]) -> None:
-        metric_value = self.metric
-        if isinstance(metric_value, dict):
-            self.log_dict(metric_value)
-        else:
-            self.log(self.metric.__class__.__name__, metric_value)
+        if self.metric is not None:
+            self.log_dict(self.metric)
         self.image_helper.log_to(self.logger.experiment)
